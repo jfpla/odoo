@@ -27,9 +27,11 @@
 # Is the server running with gevent.
 import sys
 evented = False
+"""
+# Statement commented for PyCharm PyDev compatibility reasons
 if sys.modules.get("gevent") is not None:
     evented = True
-
+"""
 # Is the server running in pefork mode (e.g. behind Gunicorn).
 # If this is True, the processes have to communicate some events,
 # e.g. database update or cache invalidation. Each process has also
