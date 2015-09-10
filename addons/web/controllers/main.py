@@ -33,6 +33,7 @@ import openerp
 import openerp.modules.registry
 from openerp.addons.base.ir.ir_qweb import AssetsBundle, QWebTemplateNotFound
 from openerp.modules import get_module_resource
+from openerp.service import model as service_model
 from openerp.tools import topological_sort
 from openerp.tools.translate import _
 from openerp.tools import ustr
@@ -311,12 +312,12 @@ def set_cookie_and_redirect(redirect_url):
 
 def login_redirect():
     url = '/web/login?'
-    if request.debug:
-        url += 'debug&'
+    # built the redirect url, keeping all the query parameters of the url
+    redirect_url = '%s?%s' % (request.httprequest.base_url, werkzeug.urls.url_encode(request.params))
     return """<html><head><script>
-        window.location = '%sredirect=' + encodeURIComponent(window.location);
+        window.location = '%sredirect=' + encodeURIComponent("%s" + location.hash);
     </script></head></html>
-    """ % (url,)
+    """ % (url, redirect_url)
 
 def load_actions_from_ir_values(key, key2, models, meta):
     Values = request.session.model('ir.values')
@@ -511,7 +512,13 @@ class Home(http.Controller):
                 return http.redirect_with_hash(redirect)
             request.uid = old_uid
             values['error'] = "Wrong login/password"
-        return request.render('web.login', values)
+        if request.env.ref('web.login', False):
+            return request.render('web.login', values)
+        else:
+            # probably not an odoo compatible database
+            error = 'Unable to login on database %s' % request.session.db
+            return werkzeug.utils.redirect('/web/database/selector?error=%s' % error, 303)
+
 
     @http.route('/login', type='http', auth="none")
     def login(self, db, login, key, redirect="/web", **kw):
@@ -664,6 +671,7 @@ class Database(http.Controller):
         return env.get_template("database_selector.html").render({
             'databases': dbs,
             'debug': request.debug,
+            'error': kw.get('error')
         })
 
     @http.route('/web/database/manager', type='http', auth="none")
@@ -926,7 +934,10 @@ class DataSet(http.Controller):
         if method.startswith('_'):
             raise Exception("Access Denied: Underscore prefixed methods cannot be remotely called")
 
-        return getattr(request.registry.get(model), method)(request.cr, request.uid, *args, **kwargs)
+        @service_model.check
+        def checked_call(__dbname, *args, **kwargs):
+            return getattr(request.registry.get(model), method)(request.cr, request.uid, *args, **kwargs)
+        return checked_call(request.db, *args, **kwargs)
 
     @http.route('/web/dataset/call', type='json', auth="user")
     def call(self, model, method, args, domain_id=None, context_id=None):
