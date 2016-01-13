@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Odoo 8.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-19 06:31+0000\n"
-"PO-Revision-Date: 2015-11-27 06:28+0000\n"
+"PO-Revision-Date: 2016-01-10 01:52+0000\n"
 "Last-Translator: Martin Trigaux\n"
 "Language-Team: Spanish (Ecuador) (http://www.transifex.com/odoo/odoo-8/language/es_EC/)\n"
 "MIME-Version: 1.0\n"
@@ -129,7 +129,7 @@ msgstr "Administración"
 #. module: project
 #: field:project.project,alias_id:0
 msgid "Alias"
-msgstr ""
+msgstr "Alías"
 
 #. module: project
 #: field:project.project,alias_model:0
@@ -530,7 +530,7 @@ msgstr "Horas reales"
 #. module: project
 #: view:project.project:project.edit_project
 msgid "Email Alias"
-msgstr ""
+msgstr "Alías del Correo electrónico"
 
 #. module: project
 #: view:project.project:project.edit_project
@@ -1492,7 +1492,7 @@ msgstr ""
 #. module: project
 #: model:mail.message.subtype,description:project.mt_task_new
 msgid "Task created"
-msgstr ""
+msgstr "Tarea creada"
 
 #. module: project
 #: view:project.task:project.view_task_form2
